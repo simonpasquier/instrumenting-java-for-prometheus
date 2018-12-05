@@ -1,0 +1,8 @@
+<servlet>
+  <servlet-name>metrics</servlet-name>
+  <servlet-class>io.prometheus.client.exporter.MetricsServlet</servlet-class>
+</servlet>
+<servlet-mapping>
+  <servlet-name>metrics</servlet-name>
+  <url-pattern>/metrics</url-pattern>
+</servlet-mapping>
