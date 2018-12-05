@@ -6,6 +6,7 @@
   <groupId>com.example</groupId>
   <artifactId>restful-endpoint</artifactId>
   <version>1.0.0-SNAPSHOT</version>
+  <!-- required to expose application metrics -->
   <packaging>war</packaging>
 
   <name>Thorntail Example</name>
