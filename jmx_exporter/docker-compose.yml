@@ -1,0 +1,19 @@
+version: '2'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+  kafka:
+    build: .
+    ports:
+      - "9092:9092"
+      - "9098:9098"
+      - "9099:9099"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote.rmi.port=9099 -javaagent:/jmx_exporter/jmx_prometheus_javaagent.jar=9098:/jmx_exporter/config.yml"
+      JMX_PORT: 9099
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
