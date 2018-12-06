@@ -2,9 +2,9 @@ This example is a very simple application running on Thorntail that exposes a se
 
 It offers 2 endpoints:
 
-* `/rest/hello` responding `200 OK` with `Hello from Thorntail!`. The endpoint
-* adds a random delay to generate different response times. From time to time,
-* it will fail with `500 SERVER UNAVAILABLE`.
+* `/hello` responding `200 OK` with `Hello from Thorntail!`. The endpoint
+ adds a random delay to generate different response times. From time to time,
+ it will fail with `500 SERVER UNAVAILABLE`.
 * `/metrics` exposing the Prometheus metrics.
 
 ## Running it
@@ -13,5 +13,4 @@ It offers 2 endpoints:
 mvn thorntail:run
 ```
 
-Visit `http://localhost:8080/rest/hello` a couple of times. Then go to `http://localhost:8080/metrics` to view the metrics.
-
+Visit `http://localhost:8080/hello` a couple of times. Then go to `http://localhost:8080/metrics` to view the metrics.
