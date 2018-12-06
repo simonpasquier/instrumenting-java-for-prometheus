@@ -1,4 +1,4 @@
-This repository contains several demonstrating how to instrument Java applications for Prometheus.
+This repository contains several exampels how to instrument Java applications for Prometheus.
 
 * [Instrumenting with the JMX exporter](./jmx_exporter)
 * [Instrumenting with the client_java library](./client_java)
