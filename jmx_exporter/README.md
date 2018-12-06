@@ -1,6 +1,6 @@
 This example runs a single-node Kafka cluster with the [JMX exporter](https://github.com/prometheus/jmx_exporter) running as a Java agent.
 
-The metrics exposed by the JMX exporter are defined in [config.yml](./config.yml) (taken from the JMX exporter repository).
+The metrics exposed by the JMX exporter are defined in [jmx_exporter.yml](./jmx_exporter.yml) (taken from the JMX exporter repository).
 
 ## Running it
 
