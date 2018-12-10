@@ -8,3 +8,7 @@ for dir in client_java mp_metrics; do
     docker build -t $dir:latest .
     popd
 done
+
+pushd micrometer
+docker build -t micrometer:latest .
+popd

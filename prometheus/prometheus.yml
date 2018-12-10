@@ -19,3 +19,4 @@ scrape_configs:
       - targets:
         - client_java:8080
         - mp_metrics:8080
+        - micrometer:8080
