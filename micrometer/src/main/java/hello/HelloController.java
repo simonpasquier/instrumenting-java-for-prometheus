@@ -15,7 +15,7 @@ public class HelloController {
     try {
       // Add some random delay and fail approximately 1 request out of 20.
       long rand = (long)(Math.random() * 1000);
-      if (rand % 5 == 0) {
+      if (rand % 50 == 0) {
           throw new InterruptedException();
       }
       Thread.sleep((long)(Math.random() * 1000));
