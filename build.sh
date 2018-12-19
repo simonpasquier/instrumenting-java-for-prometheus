@@ -10,5 +10,6 @@ for dir in client_java mp_metrics; do
 done
 
 pushd micrometer
+gradle assemble
 docker build -t micrometer:latest .
 popd

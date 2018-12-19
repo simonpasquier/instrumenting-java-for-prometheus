@@ -9,13 +9,7 @@ This repository contains several examples how to instrument Java applications fo
 
 All examples can be packaged as container images for easy deployment.
 
-The first step is to build the `client_java`, `mp_metrics` and `micrometer` images.
-
-```bash
-./build.sh
-```
-
-Then create a shared network for all the containers.
+Create a shared network for all the containers.
 
 ```bash
 docker network create prometheus
@@ -25,9 +19,9 @@ Start the applications.
 
 ```bash
 (cd jmx_exporter && docker-compose up -d)
-docker run --rm -d -p 8081:8080 --network prometheus --name client_java client_java
-docker run --rm -d -p 8082:8080 --network prometheus --name mp_metrics mp_metrics
-docker run --rm -d -p 8083:8080 --network prometheus --name micrometer micrometer
+docker run --rm -d -p 8081:8080 --network prometheus --name client_java quay.io/simonpasquier/client_java
+docker run --rm -d -p 8082:8080 --network prometheus --name mp_metrics quay.io/simonpasquier/mp_metrics
+docker run --rm -d -p 8083:8080 --network prometheus --name micrometer quay.io/simonpasquier/micrometer
 docker run --rm -d -v $PWD/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml -p 9090:9090 --network prometheus --name prometheus prom/prometheus:latest
 ```
 
@@ -38,6 +32,16 @@ docker ps
 ```
 
 You can access the Prometheus UI at `http://localhost:9090/`.
+
+You can generate some load:
+
+```bash
+docker run --rm -d --network prometheus --name loadtest quay.io/simonpasquier/loadtest \
+    -concurrent 10 -rate 5 \
+    -uri http://client_java:8080/hello \
+    -uri http://mp_metrics:8080/hello \
+    -uri http://micrometer:8080/hello
+```
 
 ## License
 

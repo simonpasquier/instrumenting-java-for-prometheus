@@ -26,3 +26,9 @@ In addition to the Prometheus format, MicroProfile can also return the metrics a
 ```bash
 curl -H "Accept: application/json" http://localhost:8080/metrics
 ```
+
+As well as metadata:
+
+```bash
+curl -H "Accept: application/json" -XOPTIONS http://localhost:8080/metrics
+```
