@@ -33,7 +33,7 @@ docker ps
 
 You can access the Prometheus UI at `http://localhost:9090/`.
 
-You can generate some load:
+You can generate some load
 
 ```bash
 docker run --rm -d --network prometheus --name loadtest quay.io/simonpasquier/loadtest \
@@ -41,6 +41,105 @@ docker run --rm -d --network prometheus --name loadtest quay.io/simonpasquier/lo
     -uri http://client_java:8080/hello \
     -uri http://mp_metrics:8080/hello \
     -uri http://micrometer:8080/hello
+```
+
+### JMX exporter
+
+
+Retrieve the metrics exposed by the endpoint
+
+```bash
+curl http://localhost:9098/metrics
+```
+
+Query the percentage of CPU consumed by Kafka (including the exporter)
+
+```
+100 * rate(process_cpu_seconds_total{job="kafka"}[1m])
+```
+
+### client_java
+
+Retrieve the metrics exposed by the endpoint
+
+```bash
+curl http://localhost:8081/metrics
+```
+
+Query the resident memory consumed by the application
+
+```
+process_resident_memory_bytes{job="web"}
+```
+
+Query the total percentage of CPU consumed for all applications instrumented with the Prometheus libraries
+
+```
+100 * sum by(job) (rate(process_cpu_seconds_total[1m]))
+```
+
+## MicroProfile Metrics
+
+Retrieve the metrics exposed by the endpoint
+
+```bash
+curl http://localhost:8082/metrics
+```
+
+Retrieve only the base metrics exposed by the endpoint (`base` can be replaced by `vendor` or `application`)
+
+```bash
+curl http://localhost:8082/metrics/base
+```
+
+Retrieve the metric metadata
+
+```bash
+curl -H "Accept: application/json" -XOPTIONS http://localhost:8082/metrics
+```
+
+Query the ratio of request failures
+
+```
+100 * rate(application:requests_failed_total[1m]) / rate(application:requests_total[1m])
+```
+
+Query all the percentiles for response time
+
+```
+application:request_duration_seconds
+```
+
+Query the 99th-percentile response time
+
+```
+application:request_duration_seconds{quantile="0.99"}
+```
+
+## Micrometer
+
+Retrieve the metrics exposed by the endpoint
+
+```bash
+curl http://localhost:8083/actuator/prometheus
+```
+
+Query the rate of requests by status code for the `/hello` endpoint:
+
+```
+sum by (job,status) (rate(http_server_requests_seconds_count{uri="/hello"}[1m]))
+```
+
+Query the 99th-percentile response time for the all endpoints
+
+```
+histogram_quantile(0.99, sum by (job,uri,le) (rate(http_server_requests_seconds_bucket[1m])))
+```
+
+Query the rate of request failures
+
+```
+100 * sum by (job) (rate(http_server_requests_seconds_count{uri="/hello",status=~"5.+"}[1m])) / sum by (job) (rate(http_server_requests_seconds_count{uri="/hello"}[1m]))
 ```
 
 ## License
