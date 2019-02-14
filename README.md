@@ -1,9 +1,14 @@
-This repository contains several examples how to instrument Java applications for Prometheus.
+This repository contains several examples demonstrating how to instrument Java applications for Prometheus.
 
-* [Instrumenting with the JMX exporter](./jmx_exporter)
-* [Instrumenting with the client_java library](./client_java)
-* [Instrumenting with Metrics MicroProfile](./mp_metrics)
-* [Instrumenting with Micrometer](./micrometer)
+Table of Contents
+=================
+
+* [Running the demo](#running-the-demo)
+* [JMX exporter](#jmx-exporter)
+* [client_java](#client_java)
+* [MicroProfile Metrics](#microprofile-metrics)
+* [Micrometer](#micrometer)
+* [License](#license)
 
 ## Running the demo
 
@@ -43,8 +48,7 @@ docker run --rm -d --network prometheus --name loadtest quay.io/simonpasquier/lo
     -uri http://micrometer:8080/hello
 ```
 
-### JMX exporter
-
+## [JMX exporter](./jmx_exporter)
 
 Retrieve the metrics exposed by the endpoint:
 
@@ -58,7 +62,7 @@ In the Prometheus UI, query the percentage of CPU consumed by Kafka (including t
 100 * rate(process_cpu_seconds_total{job="kafka"}[1m])
 ```
 
-### client_java
+## [client_java](./client_java)
 
 Retrieve the metrics exposed by the endpoint:
 
@@ -78,7 +82,7 @@ In the Prometheus UI, query the total percentage of CPU consumed for all applica
 100 * sum by(job) (rate(process_cpu_seconds_total[1m]))
 ```
 
-## MicroProfile Metrics
+## [MicroProfile Metrics](./mp_metrics)
 
 Retrieve the metrics exposed by the endpoint:
 
@@ -116,7 +120,7 @@ Query the 99th-percentile response time:
 application:request_duration_seconds{quantile="0.99"}
 ```
 
-## Micrometer
+## [Micrometer](./micrometer)
 
 Retrieve the metrics exposed by the endpoint:
 
