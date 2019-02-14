@@ -14,3 +14,7 @@ mvn thorntail:run
 ```
 
 Visit `http://localhost:8080/hello` a couple of times. Then go to `http://localhost:8080/metrics` to view the metrics.
+
+## Documentation
+
+The API documentation is available at (http://prometheus.github.io/client_java/).
