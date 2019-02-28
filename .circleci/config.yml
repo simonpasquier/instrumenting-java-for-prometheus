@@ -12,7 +12,8 @@ jobs:
     working_directory: ~/instrumenting-java-for-prometheus/<< parameters.project >>
 
     steps:
-    - checkout
+    - checkout:
+        path: ~/instrumenting-java-for-prometheus/
     - restore_cache:
         key: instrumenting-java-for-prometheus-<< parameters.project >>-{{ checksum "pom.xml" }}
     - run:
