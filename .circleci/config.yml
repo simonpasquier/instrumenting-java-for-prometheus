@@ -4,10 +4,24 @@ jobs:
     docker:
       - image: circleci/openjdk:8-jdk
 
+    working_directory: ~/instrumenting-java-for-prometheus
+
     steps:
     - setup_remote_docker
     - checkout
-    - run: ./build.sh
-    - run: ./tag.sh
-    - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD quay.io
-    - run: ./push.sh
+    - restore_cache:
+        key: instrumenting-java-for-prometheus-{{ checksum "~/instrumenting-java-for-prometheus/client_java/pom.xml" }}
+    - run:
+        command: mvn dependency:go-offline
+        working_directory: ~/instrumenting-java-for-prometheus/client_java
+    - save_cache: # saves the project dependencies
+        paths:
+          - ~/.m2
+        key: instrumenting-java-for-prometheus-{{ checksum "~/instrumenting-java-for-prometheus/client_java/pom.xml" }}
+    - run:
+        command: mvn package
+        working_directory: ~/instrumenting-java-for-prometheus/client_java
+    #- run: ./tag.sh
+
+    #- run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD quay.io
+    #- run: ./push.sh
