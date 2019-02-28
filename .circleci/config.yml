@@ -1,27 +1,41 @@
 version: 2.1
+
 jobs:
-  build:
+  mvn_package:
+    parameters:
+      project:
+        type: string
+
     docker:
       - image: circleci/openjdk:8-jdk
 
-    working_directory: ~/instrumenting-java-for-prometheus
+    working_directory: ~/instrumenting-java-for-prometheus/<< parameters.project >>
 
     steps:
-    - setup_remote_docker
     - checkout
     - restore_cache:
-        key: instrumenting-java-for-prometheus-{{ checksum "~/instrumenting-java-for-prometheus/client_java/pom.xml" }}
+        key: instrumenting-java-for-prometheus-<< parameters.project >>-{{ checksum "pom.xml" }}
     - run:
-        command: mvn dependency:go-offline
-        working_directory: ~/instrumenting-java-for-prometheus/client_java
-    - save_cache: # saves the project dependencies
+        command: mvn -B dependency:go-offline
+    - save_cache:
         paths:
           - ~/.m2
-        key: instrumenting-java-for-prometheus-{{ checksum "~/instrumenting-java-for-prometheus/client_java/pom.xml" }}
+        key: instrumenting-java-for-prometheus-<< parameters.project >>-{{ checksum "pom.xml" }}
     - run:
-        command: mvn package
-        working_directory: ~/instrumenting-java-for-prometheus/client_java
-    #- run: ./tag.sh
+        command: mvn -B package
+    - setup_remote_docker
+    - run: docker build -t << parameters.project >>:latest .
+    - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD quay.io
+    - run: docker tag << parameters.project >>:latest "quay.io/simonpasquier/<< parameters.project >>:latest"
+    - run: docker push quay.io/simonpasquier/<< parameters.project >>
 
-    #- run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD quay.io
-    #- run: ./push.sh
+workflows:
+  version: 2
+  master:
+    jobs:
+    - mvn_package:
+        name: client_java
+        project: client_java
+    - mvn_package:
+        name: mp_metrics
+        project: mp_metrics
