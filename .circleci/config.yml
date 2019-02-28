@@ -1,0 +1,13 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:8-jdk
+
+    steps:
+    - setup_remote_docker
+    - checkout
+    - run: ./build.sh
+    - run: ./tag.sh
+    - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD quay.io
+    - run: ./push.sh
