@@ -14,21 +14,28 @@ jobs:
     steps:
     - checkout:
         path: ~/instrumenting-java-for-prometheus/
-    - restore_cache:
-        key: instrumenting-java-for-prometheus-<< parameters.project >>-{{ checksum "pom.xml" }}
     - run:
-        command: mvn -B dependency:go-offline
-    - save_cache:
-        paths:
-          - ~/.m2
-        key: instrumenting-java-for-prometheus-<< parameters.project >>-{{ checksum "pom.xml" }}
-    - run:
-        command: mvn -B package
+        command: mvn -B clean package
     - setup_remote_docker
     - run: docker build -t << parameters.project >>:latest .
     - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD quay.io
     - run: docker tag << parameters.project >>:latest "quay.io/simonpasquier/<< parameters.project >>:latest"
     - run: docker push quay.io/simonpasquier/<< parameters.project >>
+
+  micrometer:
+    docker:
+      - image: circleci/openjdk:8-jdk
+
+    working_directory: ~/instrumenting-java-for-prometheus/micrometer
+    steps:
+    - checkout:
+        path: ~/instrumenting-java-for-prometheus/
+    - run: gradle -q clean assemble
+    - setup_remote_docker
+    - run: docker build -t micrometer:latest .
+    - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD quay.io
+    - run: docker tag micrometer:latest "quay.io/simonpasquier/micrometer:latest"
+    - run: docker push quay.io/simonpasquier/micrometer
 
 workflows:
   version: 2
@@ -40,3 +47,4 @@ workflows:
     - mvn_package:
         name: mp_metrics
         project: mp_metrics
+    - micrometer
