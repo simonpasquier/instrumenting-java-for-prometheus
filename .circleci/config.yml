@@ -42,9 +42,13 @@ workflows:
   master:
     jobs:
     - mvn_package:
+        context: Quay
         name: client_java
         project: client_java
     - mvn_package:
+        context: Quay
         name: mp_metrics
         project: mp_metrics
-    - micrometer
+    - micrometer:
+        context: Quay
+        name: mp_metrics
