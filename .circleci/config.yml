@@ -95,7 +95,7 @@ jobs:
     - setup_remote_docker
     - run: docker build -t micrometer:latest .
     - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD quay.io
-    - run: docker tag micrometer:latest "quay.io/simonpasquier/micrometer:latest:latest"
+    - run: docker tag micrometer:latest "quay.io/simonpasquier/micrometer:latest"
     - run: docker push quay.io/simonpasquier/micrometer
 
 workflows:
