@@ -18,18 +18,66 @@ jobs:
     - run: docker tag client_java:latest "quay.io/simonpasquier/client_java:latest"
     - run: docker push quay.io/simonpasquier/client_java
 
-  mp_metrics:
-    docker:
-      - image: circleci/openjdk:8-jdk
-
+  # From https://quarkus.io/blog/quarkus-app-circleci-build/
+  mp_metrics_build:
+    machine: true
     working_directory: ~/instrumenting-java-for-prometheus/mp_metrics
+
+    environment:
+      MAVEN_OPTS: -Xmx6400m
+      # Set the GRAALVM_HOME env variable to the location where we will be installing GraalVM
+      GRAALVM_HOME: /home/circleci/repo/.graalvm
 
     steps:
     - checkout:
         path: ~/instrumenting-java-for-prometheus/
-    - setup_remote_docker
+    - restore_cache:
+        keys:
+          - v1-dependencies-{{ checksum "pom.xml" }}
+          - v1-dependencies-
     - run:
-        command: ./mvnw package -Pnative -Dquarkus.native.container-build=true
+        name: Download Dependencies
+        command: mvn dependency:go-offline
+    - save_cache:
+        paths:
+          - ~/.m2
+        key: v1-dependencies-{{ checksum "pom.xml" }}
+    - run:
+        name: Build (Standard)
+        command: ./mvnw clean package -DskipTests -Dmaven.test.skip=true
+    - run:
+        name: Verify (Standard)
+        command: ./mvnw test
+    - run:
+        name: Install GraalVM
+        command: curl https://github.com/oracle/graal/releases/download/vm-19.1.1/graalvm-ce-linux-amd64-19.1.1.tar.gz -O -J -L && tar xfz graalvm-ce-linux-amd64-19.1.1.tar.gz && mv graalvm-ce-19.1.1 .graalvm && rm graalvm-ce-linux-amd64-19.1.1.tar.gz
+    - run:
+        name: Install native-image
+        command: $GRAALVM_HOME/bin/gu install native-image
+    - run:
+        name: Build (Native)
+        command: ./mvnw clean package -Pnative -DskipTests -Dmaven.test.skip=true
+        no_output_timeout: 30m
+    - run:
+        name: Verify (Native)
+        command: ./mvnw verify -Pnative
+        no_output_timeout: 30m
+    - persist_to_workspace:
+        paths:
+        - target/*-runner
+        root: .
+
+  mp_metrics_publish:
+    docker:
+      - image: circleci/openjdk:8-jdk
+
+    working_directory: ~/instrumenting-java-for-prometheus/mp_metrics
+    steps:
+    - checkout:
+        path: ~/instrumenting-java-for-prometheus/
+    - attach_workspace:
+        at: .
+    - setup_remote_docker
     - run: docker build -f src/main/docker/Dockerfile.native -t mp_metrics:latest .
     - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD quay.io
     - run: docker tag client_java:latest "quay.io/simonpasquier/client_java:latest"
@@ -56,7 +104,11 @@ workflows:
     jobs:
     - client_java:
         context: Quay
-    - mp_metrics:
+    - mp_metrics_build:
         context: Quay
+    - mp_metrics_publish:
+        context: Quay
+        requires:
+        - mp_metrics_build
     - micrometer:
         context: Quay
