@@ -26,7 +26,7 @@ jobs:
     environment:
       MAVEN_OPTS: -Xmx6400m
       # Set the GRAALVM_HOME env variable to the location where we will be installing GraalVM
-      GRAALVM_HOME: /home/circleci/repo/.graalvm
+      GRAALVM_HOME: /home/circleci/instrumenting-java-for-prometheus/mp_metrics/.graalvm
 
     steps:
     - checkout:
