@@ -1,15 +1,11 @@
 version: 2.1
 
 jobs:
-  mvn_package:
-    parameters:
-      project:
-        type: string
-
+  client_java:
     docker:
       - image: circleci/openjdk:8-jdk
 
-    working_directory: ~/instrumenting-java-for-prometheus/<< parameters.project >>
+    working_directory: ~/instrumenting-java-for-prometheus/client_java
 
     steps:
     - checkout:
@@ -17,10 +13,27 @@ jobs:
     - run:
         command: mvn -B clean package
     - setup_remote_docker
-    - run: docker build -t << parameters.project >>:latest .
+    - run: docker build -t client_java:latest .
     - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD quay.io
-    - run: docker tag << parameters.project >>:latest "quay.io/simonpasquier/<< parameters.project >>:latest"
-    - run: docker push quay.io/simonpasquier/<< parameters.project >>
+    - run: docker tag client_java:latest "quay.io/simonpasquier/client_java:latest"
+    - run: docker push quay.io/simonpasquier/client_java
+
+  mp_metrics:
+    docker:
+      - image: circleci/openjdk:8-jdk
+
+    working_directory: ~/instrumenting-java-for-prometheus/mp_metrics
+
+    steps:
+    - checkout:
+        path: ~/instrumenting-java-for-prometheus/
+    - run:
+        command: ./mvnw package -Pnative
+    - setup_remote_docker
+    - run: docker build -f src/main/docker/Dockerfile.native -t mp_metrics:latest .
+    - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD quay.io
+    - run: docker tag client_java:latest "quay.io/simonpasquier/client_java:latest"
+    - run: docker push quay.io/simonpasquier/client_java
 
   micrometer:
     docker:
@@ -34,21 +47,16 @@ jobs:
     - setup_remote_docker
     - run: docker build -t micrometer:latest .
     - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD quay.io
-    - run: docker tag micrometer:latest "quay.io/simonpasquier/micrometer:latest"
+    - run: docker tag micrometer:latest "quay.io/simonpasquier/micrometer:latest:latest"
     - run: docker push quay.io/simonpasquier/micrometer
 
 workflows:
   version: 2
   master:
     jobs:
-    - mvn_package:
+    - client_java:
         context: Quay
-        name: client_java
-        project: client_java
-    - mvn_package:
+    - mp_metrics:
         context: Quay
-        name: mp_metrics
-        project: mp_metrics
     - micrometer:
         context: Quay
-        name: mp_metrics
