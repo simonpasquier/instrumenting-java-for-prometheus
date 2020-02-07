@@ -27,9 +27,9 @@ jobs:
     steps:
     - checkout:
         path: ~/instrumenting-java-for-prometheus/
-    - run:
-        command: ./mvnw package -Pnative
     - setup_remote_docker
+    - run:
+        command: /mvnw package -Pnative -Dquarkus.native.container-build=true
     - run: docker build -f src/main/docker/Dockerfile.native -t mp_metrics:latest .
     - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD quay.io
     - run: docker tag client_java:latest "quay.io/simonpasquier/client_java:latest"
