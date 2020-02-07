@@ -80,8 +80,8 @@ jobs:
     - setup_remote_docker
     - run: docker build -f src/main/docker/Dockerfile.native -t mp_metrics:latest .
     - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD quay.io
-    - run: docker tag client_java:latest "quay.io/simonpasquier/client_java:latest"
-    - run: docker push quay.io/simonpasquier/client_java
+    - run: docker tag mp_metrics:latest "quay.io/simonpasquier/mp_metrics:latest"
+    - run: docker push quay.io/simonpasquier/mp_metrics
 
   micrometer:
     docker:
