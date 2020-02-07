@@ -2,12 +2,15 @@
 
 set -e
 
-for dir in client_java mp_metrics; do
-    pushd $dir
-    mvn clean package
-    docker build -t $dir:latest .
-    popd
-done
+pushd client_java
+mvn clean package
+docker build -t client_java:latest .
+popd
+
+pushd mp_metrics
+./mvnw package -Pnative -Dquarkus.native.container-build=true
+docker build -f src/main/docker/Dockerfile.native -t mp_metrics:latest .
+popd
 
 pushd micrometer
 gradle assemble
